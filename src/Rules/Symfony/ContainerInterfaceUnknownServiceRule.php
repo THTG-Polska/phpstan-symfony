@@ -52,6 +52,11 @@ final class ContainerInterfaceUnknownServiceRule implements Rule
 			return [];
 		}
 
+		$isLaminasLocator = (new ObjectType('Laminas\ServiceManager\ServiceManager'))->isSuperTypeOf($argType);
+		if ($isLaminasLocator->yes()) {
+			return [];
+		}
+
 		$isControllerType = (new ObjectType('Symfony\Bundle\FrameworkBundle\Controller\Controller'))->isSuperTypeOf($argType);
 		$isAbstractControllerType = (new ObjectType('Symfony\Bundle\FrameworkBundle\Controller\AbstractController'))->isSuperTypeOf($argType);
 		$isContainerType = (new ObjectType('Symfony\Component\DependencyInjection\ContainerInterface'))->isSuperTypeOf($argType);
