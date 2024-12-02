@@ -38,7 +38,7 @@ final class ContainerInterfacePrivateServiceRule implements Rule
 			return [];
 		}
 
-		if (!str_starts_with($scope->getNamespace(), 'App\\') && $scope->getNamespace() !== 'App') {
+		if ($scope->getNamespace() !== null && !str_starts_with($scope->getNamespace(), 'App\\') && $scope->getNamespace() !== 'App') {
 			return [];
 		}
 
