@@ -16,7 +16,7 @@ final class Service implements ServiceDefinition
 	private ?string $alias = null;
 
 	/** @var ServiceTag[] */
-	private $tags;
+	private array $tags;
 
 	/** @param ServiceTag[] $tags */
 	public function __construct(

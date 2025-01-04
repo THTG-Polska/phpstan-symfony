@@ -19,11 +19,9 @@ final class MessengerHandleTraitReturnTypeExtension implements ExpressionTypeRes
 	private const TRAIT_NAME = 'Symfony\Component\Messenger\HandleTrait';
 	private const TRAIT_METHOD_NAME = 'handle';
 
-	/** @var MessageMapFactory */
-	private $messageMapFactory;
+	private MessageMapFactory $messageMapFactory;
 
-	/** @var MessageMap|null */
-	private $messageMap;
+	private ?MessageMap $messageMap = null;
 
 	public function __construct(MessageMapFactory $symfonyMessageMapFactory)
 	{

@@ -17,11 +17,9 @@ final class MessageMapFactory
 	private const MESSENGER_HANDLER_TAG = 'messenger.message_handler';
 	private const DEFAULT_HANDLER_METHOD = '__invoke';
 
-	/** @var ReflectionProvider */
-	private $reflectionProvider;
+	private ReflectionProvider $reflectionProvider;
 
-	/** @var ServiceMap */
-	private $serviceMap;
+	private ServiceMap $serviceMap;
 
 	public function __construct(ServiceMap $symfonyServiceMap, ReflectionProvider $reflectionProvider)
 	{

@@ -5,11 +5,10 @@ namespace PHPStan\Symfony;
 final class ServiceTag implements ServiceTagDefinition
 {
 
-	/** @var string */
-	private $name;
+	private string $name;
 
 	/** @var array<string, string> */
-	private $attributes;
+	private array $attributes;
 
 	/** @param array<string, string> $attributes */
 	public function __construct(string $name, array $attributes = [])

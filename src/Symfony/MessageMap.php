@@ -8,7 +8,7 @@ final class MessageMap
 {
 
 	/** @var array<string, Type> */
-	private $messageMap;
+	private array $messageMap;
 
 	/** @param array<string, Type> $messageMap */
 	public function __construct(array $messageMap)
