@@ -4,7 +4,6 @@ namespace PHPStan\Rules\Symfony;
 
 use PHPStan\Node\Printer\Printer;
 use PHPStan\Rules\Rule;
-use PHPStan\Symfony\Configuration;
 use PHPStan\Symfony\ConsoleApplicationResolver;
 use PHPStan\Testing\RuleTestCase;
 
@@ -16,7 +15,7 @@ final class UndefinedArgumentRuleTest extends RuleTestCase
 
 	protected function getRule(): Rule
 	{
-		return new UndefinedArgumentRule(new ConsoleApplicationResolver(new Configuration(['consoleApplicationLoader' => __DIR__ . '/console_application_loader.php'])), self::getContainer()->getByType(Printer::class));
+		return new UndefinedArgumentRule(new ConsoleApplicationResolver(__DIR__ . '/console_application_loader.php'), self::getContainer()->getByType(Printer::class));
 	}
 
 	public function testGetArgument(): void

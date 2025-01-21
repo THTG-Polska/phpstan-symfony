@@ -4,7 +4,6 @@ namespace PHPStan\Rules\Symfony;
 
 use PHPStan\Node\Printer\Printer;
 use PHPStan\Rules\Rule;
-use PHPStan\Symfony\Configuration;
 use PHPStan\Symfony\XmlServiceMapFactory;
 use PHPStan\Testing\RuleTestCase;
 use PHPStan\Type\MethodTypeSpecifyingExtension;
@@ -20,7 +19,7 @@ final class ContainerInterfaceUnknownServiceRuleFakeTest extends RuleTestCase
 
 	protected function getRule(): Rule
 	{
-		return new ContainerInterfaceUnknownServiceRule((new XmlServiceMapFactory(new Configuration([])))->create(), self::getContainer()->getByType(Printer::class));
+		return new ContainerInterfaceUnknownServiceRule((new XmlServiceMapFactory(null))->create(), self::getContainer()->getByType(Printer::class));
 	}
 
 	/**

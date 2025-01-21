@@ -3,7 +3,6 @@
 namespace PHPStan\Rules\Symfony;
 
 use PHPStan\Rules\Rule;
-use PHPStan\Symfony\Configuration;
 use PHPStan\Symfony\XmlServiceMapFactory;
 use PHPStan\Testing\RuleTestCase;
 use function class_exists;
@@ -17,7 +16,7 @@ final class ContainerInterfacePrivateServiceRuleTest extends RuleTestCase
 
 	protected function getRule(): Rule
 	{
-		return new ContainerInterfacePrivateServiceRule((new XmlServiceMapFactory(new Configuration(['containerXmlPath' => __DIR__ . '/container.xml'])))->create());
+		return new ContainerInterfacePrivateServiceRule((new XmlServiceMapFactory(__DIR__ . '/container.xml'))->create());
 	}
 
 	public function testGetPrivateService(): void

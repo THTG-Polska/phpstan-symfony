@@ -4,7 +4,6 @@ namespace PHPStan\Rules\Symfony;
 
 use PHPStan\Node\Printer\Printer;
 use PHPStan\Rules\Rule;
-use PHPStan\Symfony\Configuration;
 use PHPStan\Symfony\XmlServiceMapFactory;
 use PHPStan\Testing\RuleTestCase;
 use function class_exists;
@@ -18,7 +17,7 @@ final class ContainerInterfaceUnknownServiceRuleTest extends RuleTestCase
 
 	protected function getRule(): Rule
 	{
-		return new ContainerInterfaceUnknownServiceRule((new XmlServiceMapFactory(new Configuration(['containerXmlPath' => __DIR__ . '/container.xml'])))->create(), self::getContainer()->getByType(Printer::class));
+		return new ContainerInterfaceUnknownServiceRule((new XmlServiceMapFactory(__DIR__ . '/container.xml'))->create(), self::getContainer()->getByType(Printer::class));
 	}
 
 	public function testGetPrivateService(): void

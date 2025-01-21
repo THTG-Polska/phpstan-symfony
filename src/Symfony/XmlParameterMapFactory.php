@@ -17,9 +17,9 @@ final class XmlParameterMapFactory implements ParameterMapFactory
 
 	private ?string $containerXml = null;
 
-	public function __construct(Configuration $configuration)
+	public function __construct(?string $containerXmlPath)
 	{
-		$this->containerXml = $configuration->getContainerXmlPath();
+		$this->containerXml = $containerXmlPath;
 	}
 
 	public function create(): ParameterMap
