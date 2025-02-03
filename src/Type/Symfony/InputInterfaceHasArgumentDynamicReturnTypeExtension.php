@@ -10,15 +10,14 @@ use PHPStan\Symfony\ConsoleApplicationResolver;
 use PHPStan\Type\Constant\ConstantBooleanType;
 use PHPStan\Type\DynamicMethodReturnTypeExtension;
 use PHPStan\Type\Type;
-use PHPStan\Type\TypeUtils;
 use function array_unique;
 use function count;
+use function in_array;
 
 final class InputInterfaceHasArgumentDynamicReturnTypeExtension implements DynamicMethodReturnTypeExtension
 {
 
-	/** @var ConsoleApplicationResolver */
-	private $consoleApplicationResolver;
+	private ConsoleApplicationResolver $consoleApplicationResolver;
 
 	public function __construct(ConsoleApplicationResolver $consoleApplicationResolver)
 	{
@@ -46,11 +45,22 @@ final class InputInterfaceHasArgumentDynamicReturnTypeExtension implements Dynam
 			return null;
 		}
 
-		$argStrings = TypeUtils::getConstantStrings($scope->getType($methodCall->getArgs()[0]->value));
+		$argStrings = $scope->getType($methodCall->getArgs()[0]->value)->getConstantStrings();
 		if (count($argStrings) !== 1) {
 			return null;
 		}
 		$argName = $argStrings[0]->getValue();
+
+		if ($argName === 'command') {
+			$method = $scope->getFunction();
+			if (
+				$method instanceof MethodReflection
+				&& ($method->getName() === 'interact' || $method->getName() === 'initialize')
+				&& in_array('Symfony\Component\Console\Command\Command', $method->getDeclaringClass()->getParentClassesNames(), true)
+			) {
+				return null;
+			}
+		}
 
 		$returnTypes = [];
 		foreach ($this->consoleApplicationResolver->findCommands($classReflection) as $command) {

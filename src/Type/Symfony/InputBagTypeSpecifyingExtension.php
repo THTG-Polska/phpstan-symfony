@@ -20,8 +20,7 @@ final class InputBagTypeSpecifyingExtension implements MethodTypeSpecifyingExten
 	private const HAS_METHOD_NAME = 'has';
 	private const GET_METHOD_NAME = 'get';
 
-	/** @var TypeSpecifier */
-	private $typeSpecifier;
+	private TypeSpecifier $typeSpecifier;
 
 	public function getClass(): string
 	{
@@ -30,7 +29,7 @@ final class InputBagTypeSpecifyingExtension implements MethodTypeSpecifyingExten
 
 	public function isMethodSupported(MethodReflection $methodReflection, MethodCall $node, TypeSpecifierContext $context): bool
 	{
-		return $methodReflection->getName() === self::HAS_METHOD_NAME && !$context->null();
+		return $methodReflection->getName() === self::HAS_METHOD_NAME && $context->false();
 	}
 
 	public function specifyTypes(MethodReflection $methodReflection, MethodCall $node, Scope $scope, TypeSpecifierContext $context): SpecifiedTypes
@@ -38,7 +37,8 @@ final class InputBagTypeSpecifyingExtension implements MethodTypeSpecifyingExten
 		return $this->typeSpecifier->create(
 			new MethodCall($node->var, self::GET_METHOD_NAME, $node->getArgs()),
 			new NullType(),
-			$context->negate()
+			$context->negate(),
+			$scope,
 		);
 	}
 

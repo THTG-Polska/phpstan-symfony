@@ -2,7 +2,7 @@
 
 namespace PHPStan\Rules\Symfony;
 
-use PhpParser\PrettyPrinter\Standard;
+use PHPStan\Node\Printer\Printer;
 use PHPStan\Rules\Rule;
 use PHPStan\Symfony\Configuration;
 use PHPStan\Symfony\XmlServiceMapFactory;
@@ -18,7 +18,7 @@ final class ContainerInterfaceUnknownServiceRuleTest extends RuleTestCase
 
 	protected function getRule(): Rule
 	{
-		return new ContainerInterfaceUnknownServiceRule((new XmlServiceMapFactory(new Configuration(['containerXmlPath' => __DIR__ . '/container.xml'])))->create(), new Standard());
+		return new ContainerInterfaceUnknownServiceRule((new XmlServiceMapFactory(new Configuration(['containerXmlPath' => __DIR__ . '/container.xml'])))->create(), self::getContainer()->getByType(Printer::class));
 	}
 
 	public function testGetPrivateService(): void
@@ -35,7 +35,7 @@ final class ContainerInterfaceUnknownServiceRuleTest extends RuleTestCase
 					'Service "unknown" is not registered in the container.',
 					25,
 				],
-			]
+			],
 		);
 	}
 
@@ -54,7 +54,7 @@ final class ContainerInterfaceUnknownServiceRuleTest extends RuleTestCase
 					'Service "unknown" is not registered in the container.',
 					25,
 				],
-			]
+			],
 		);
 	}
 
@@ -68,7 +68,7 @@ final class ContainerInterfaceUnknownServiceRuleTest extends RuleTestCase
 			[
 				__DIR__ . '/ExampleServiceSubscriber.php',
 			],
-			[]
+			[],
 		);
 	}
 

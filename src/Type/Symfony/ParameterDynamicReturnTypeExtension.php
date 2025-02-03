@@ -6,15 +6,14 @@ use PhpParser\Node\Expr\MethodCall;
 use PHPStan\Analyser\Scope;
 use PHPStan\PhpDoc\TypeStringResolver;
 use PHPStan\Reflection\MethodReflection;
-use PHPStan\Reflection\ParametersAcceptorSelector;
 use PHPStan\ShouldNotHappenException;
 use PHPStan\Symfony\Configuration;
 use PHPStan\Symfony\ParameterMap;
 use PHPStan\Type\ArrayType;
 use PHPStan\Type\BooleanType;
 use PHPStan\Type\Constant\ConstantArrayType;
+use PHPStan\Type\Constant\ConstantArrayTypeBuilder;
 use PHPStan\Type\Constant\ConstantBooleanType;
-use PHPStan\Type\ConstantType;
 use PHPStan\Type\DynamicMethodReturnTypeExtension;
 use PHPStan\Type\FloatType;
 use PHPStan\Type\GeneralizePrecision;
@@ -43,24 +42,22 @@ use function strlen;
 final class ParameterDynamicReturnTypeExtension implements DynamicMethodReturnTypeExtension
 {
 
-	/** @var string */
-	private $className;
+	/** @var class-string */
+	private string $className;
 
-	/** @var string|null */
-	private $methodGet;
+	private ?string $methodGet = null;
 
-	/** @var string|null */
-	private $methodHas;
+	private ?string $methodHas = null;
 
-	/** @var bool */
-	private $constantHassers;
+	private bool $constantHassers;
 
-	/** @var ParameterMap */
-	private $parameterMap;
+	private ParameterMap $parameterMap;
 
-	/** @var TypeStringResolver */
-	private $typeStringResolver;
+	private TypeStringResolver $typeStringResolver;
 
+	/**
+	 * @param class-string $className
+	 */
 	public function __construct(
 		string $className,
 		?string $methodGet,
@@ -85,14 +82,12 @@ final class ParameterDynamicReturnTypeExtension implements DynamicMethodReturnTy
 
 	public function isMethodSupported(MethodReflection $methodReflection): bool
 	{
-		$methods = array_filter([$this->methodGet, $this->methodHas], static function (?string $method): bool {
-			return $method !== null;
-		});
+		$methods = array_filter([$this->methodGet, $this->methodHas], static fn (?string $method): bool => $method !== null);
 
 		return in_array($methodReflection->getName(), $methods, true);
 	}
 
-	public function getTypeFromMethodCall(MethodReflection $methodReflection, MethodCall $methodCall, Scope $scope): Type
+	public function getTypeFromMethodCall(MethodReflection $methodReflection, MethodCall $methodCall, Scope $scope): ?Type
 	{
 		switch ($methodReflection->getName()) {
 			case $this->methodGet:
@@ -168,16 +163,14 @@ final class ParameterDynamicReturnTypeExtension implements DynamicMethodReturnTy
 					$valueTypes[] = $this->generalizeTypeFromValue($scope, $element);
 				}
 
-				return new ConstantArrayType($keyTypes, $valueTypes);
+				return ConstantArrayTypeBuilder::createFromConstantArray(
+					new ConstantArrayType($keyTypes, $valueTypes),
+				)->getArray();
 			}
 
 			return new ArrayType(
-				TypeCombinator::union(...array_map(function ($item) use ($scope): Type {
-					return $this->generalizeTypeFromValue($scope, $item);
-				}, array_keys($value))),
-				TypeCombinator::union(...array_map(function ($item) use ($scope): Type {
-					return $this->generalizeTypeFromValue($scope, $item);
-				}, array_values($value)))
+				TypeCombinator::union(...array_map(fn ($item): Type => $this->generalizeTypeFromValue($scope, $item), array_keys($value))),
+				TypeCombinator::union(...array_map(fn ($item): Type => $this->generalizeTypeFromValue($scope, $item), array_values($value))),
 			);
 		}
 
@@ -204,7 +197,7 @@ final class ParameterDynamicReturnTypeExtension implements DynamicMethodReturnTy
 				}
 				return new ArrayType($this->generalizeType($type->getKeyType()), $this->generalizeType($type->getItemType()));
 			}
-			if ($type instanceof ConstantType) {
+			if ($type->isConstantValue()->yes()) {
 				return $type->generalize(GeneralizePrecision::lessSpecific());
 			}
 			return $traverse($type);
@@ -215,16 +208,15 @@ final class ParameterDynamicReturnTypeExtension implements DynamicMethodReturnTy
 		MethodReflection $methodReflection,
 		MethodCall $methodCall,
 		Scope $scope
-	): Type
+	): ?Type
 	{
-		$defaultReturnType = ParametersAcceptorSelector::selectSingle($methodReflection->getVariants())->getReturnType();
 		if (!isset($methodCall->getArgs()[0]) || !$this->constantHassers) {
-			return $defaultReturnType;
+			return null;
 		}
 
 		$parameterKeys = $this->parameterMap::getParameterKeysFromNode($methodCall->getArgs()[0]->value, $scope);
 		if ($parameterKeys === []) {
-			return $defaultReturnType;
+			return null;
 		}
 
 		$has = null;
@@ -237,7 +229,7 @@ final class ParameterDynamicReturnTypeExtension implements DynamicMethodReturnTy
 				($has === true && $parameter === null)
 				|| ($has === false && $parameter !== null)
 			) {
-				return $defaultReturnType;
+				return null;
 			}
 		}
 

@@ -5,27 +5,27 @@ namespace PHPStan\Symfony;
 final class Service implements ServiceDefinition
 {
 
-	/** @var string */
-	private $id;
+	private string $id;
 
-	/** @var string|null */
-	private $class;
+	private ?string $class = null;
 
-	/** @var bool */
-	private $public;
+	private bool $public;
 
-	/** @var bool */
-	private $synthetic;
+	private bool $synthetic;
 
-	/** @var string|null */
-	private $alias;
+	private ?string $alias = null;
 
+	/** @var ServiceTag[] */
+	private array $tags;
+
+	/** @param ServiceTag[] $tags */
 	public function __construct(
 		string $id,
 		?string $class,
 		bool $public,
 		bool $synthetic,
-		?string $alias
+		?string $alias,
+		array $tags = []
 	)
 	{
 		$this->id = $id;
@@ -33,6 +33,7 @@ final class Service implements ServiceDefinition
 		$this->public = $public;
 		$this->synthetic = $synthetic;
 		$this->alias = $alias;
+		$this->tags = $tags;
 	}
 
 	public function getId(): string
@@ -58,6 +59,11 @@ final class Service implements ServiceDefinition
 	public function getAlias(): ?string
 	{
 		return $this->alias;
+	}
+
+	public function getTags(): array
+	{
+		return $this->tags;
 	}
 
 }

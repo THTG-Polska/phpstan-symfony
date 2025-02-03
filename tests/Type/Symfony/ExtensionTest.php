@@ -14,6 +14,7 @@ class ExtensionTest extends TypeInferenceTestCase
 	/** @return mixed[] */
 	public function dataFileAsserts(): iterable
 	{
+		yield from $this->gatherAssertTypes(__DIR__ . '/data/messenger_handle_trait.php');
 		yield from $this->gatherAssertTypes(__DIR__ . '/data/envelope_all.php');
 		yield from $this->gatherAssertTypes(__DIR__ . '/data/header_bag_get.php');
 		yield from $this->gatherAssertTypes(__DIR__ . '/data/response_header_bag_get_cookies.php');
@@ -28,6 +29,7 @@ class ExtensionTest extends TypeInferenceTestCase
 		yield from $this->gatherAssertTypes(__DIR__ . '/data/ExampleOptionCommand.php');
 		yield from $this->gatherAssertTypes(__DIR__ . '/data/ExampleOptionLazyCommand.php');
 		yield from $this->gatherAssertTypes(__DIR__ . '/data/kernel_interface.php');
+		yield from $this->gatherAssertTypes(__DIR__ . '/data/property_accessor.php');
 		yield from $this->gatherAssertTypes(__DIR__ . '/data/request_get_content.php');
 
 		$ref = new ReflectionMethod(Request::class, 'getSession');
@@ -57,6 +59,15 @@ class ExtensionTest extends TypeInferenceTestCase
 		yield from $this->gatherAssertTypes(__DIR__ . '/data/FormInterface_getErrors.php');
 		yield from $this->gatherAssertTypes(__DIR__ . '/data/cache.php');
 		yield from $this->gatherAssertTypes(__DIR__ . '/data/form_data_type.php');
+
+		yield from $this->gatherAssertTypes(__DIR__ . '/data/extension/with-configuration/WithConfigurationExtension.php');
+		yield from $this->gatherAssertTypes(__DIR__ . '/data/extension/without-configuration/WithoutConfigurationExtension.php');
+		yield from $this->gatherAssertTypes(__DIR__ . '/data/extension/anonymous/AnonymousExtension.php');
+		yield from $this->gatherAssertTypes(__DIR__ . '/data/extension/ignore-implemented/IgnoreImplementedExtension.php');
+		yield from $this->gatherAssertTypes(__DIR__ . '/data/extension/multiple-types/MultipleTypes.php');
+		yield from $this->gatherAssertTypes(__DIR__ . '/data/extension/with-configuration-with-constructor/WithConfigurationWithConstructorExtension.php');
+		yield from $this->gatherAssertTypes(__DIR__ . '/data/extension/with-configuration-with-constructor-optional-params/WithConfigurationWithConstructorOptionalParamsExtension.php');
+		yield from $this->gatherAssertTypes(__DIR__ . '/data/extension/with-configuration-with-constructor-required-params/WithConfigurationWithConstructorRequiredParamsExtension.php');
 	}
 
 	/**

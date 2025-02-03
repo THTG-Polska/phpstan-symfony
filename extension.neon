@@ -5,25 +5,14 @@ parameters:
 		uncheckedExceptionClasses:
 			- 'Symfony\Component\Console\Exception\InvalidArgumentException'
 	symfony:
-		container_xml_path: null
 		containerXmlPath: null
-		constant_hassers: true
 		constantHassers: true
-		console_application_loader: null
 		consoleApplicationLoader: null
-	featureToggles:
-		skipCheckGenericClasses:
-			- Symfony\Component\Form\AbstractType
-			- Symfony\Component\Form\FormInterface
-			- Symfony\Component\Form\FormTypeExtensionInterface
-			- Symfony\Component\Form\FormTypeInterface
-			- Symfony\Component\OptionsResolver\Options
-			- Symfony\Component\Security\Core\Authorization\Voter\Voter
-			- Symfony\Component\Security\Core\User\PasswordUpgraderInterface
 	stubFiles:
 		- stubs/Psr/Cache/CacheException.stub
 		- stubs/Psr/Cache/CacheItemInterface.stub
 		- stubs/Psr/Cache/InvalidArgumentException.stub
+		- stubs/Symfony/Bundle/FrameworkBundle/Controller/AbstractController.stub
 		- stubs/Symfony/Bundle/FrameworkBundle/KernelBrowser.stub
 		- stubs/Symfony/Bundle/FrameworkBundle/Test/KernelTestCase.stub
 		- stubs/Symfony/Bundle/FrameworkBundle/Test/TestContainer.stub
@@ -47,6 +36,8 @@ parameters:
 		- stubs/Symfony/Component/Form/Exception/TransformationFailedException.stub
 		- stubs/Symfony/Component/Form/DataTransformerInterface.stub
 		- stubs/Symfony/Component/Form/FormBuilderInterface.stub
+		- stubs/Symfony/Component/Form/FormConfigBuilderInterface.stub
+		- stubs/Symfony/Component/Form/FormConfigInterface.stub
 		- stubs/Symfony/Component/Form/FormInterface.stub
 		- stubs/Symfony/Component/Form/FormFactoryInterface.stub
 		- stubs/Symfony/Component/Form/FormTypeExtensionInterface.stub
@@ -60,7 +51,14 @@ parameters:
 		- stubs/Symfony/Component/Messenger/Envelope.stub
 		- stubs/Symfony/Component/OptionsResolver/Exception/InvalidOptionsException.stub
 		- stubs/Symfony/Component/OptionsResolver/Options.stub
+		- stubs/Symfony/Component/Process/Exception/LogicException.stub
 		- stubs/Symfony/Component/Process/Process.stub
+		- stubs/Symfony/Component/PropertyAccess/Exception/AccessException.stub
+		- stubs/Symfony/Component/PropertyAccess/Exception/ExceptionInterface.stub
+		- stubs/Symfony/Component/PropertyAccess/Exception/InvalidArgumentException.stub
+		- stubs/Symfony/Component/PropertyAccess/Exception/RuntimeException.stub
+		- stubs/Symfony/Component/PropertyAccess/Exception/UnexpectedTypeException.stub
+		- stubs/Symfony/Component/PropertyAccess/PropertyAccessorInterface.stub
 		- stubs/Symfony/Component/PropertyAccess/PropertyPathInterface.stub
 		- stubs/Symfony/Component/Security/Acl/Model/AclInterface.stub
 		- stubs/Symfony/Component/Security/Acl/Model/EntryInterface.stub
@@ -85,20 +83,20 @@ parameters:
 		- stubs/Symfony/Component/Serializer/Normalizer/NormalizableInterface.stub
 		- stubs/Symfony/Component/Serializer/Normalizer/NormalizerInterface.stub
 		- stubs/Symfony/Component/Validator/Constraint.stub
+		- stubs/Symfony/Component/Validator/Constraints/Composite.stub
+		- stubs/Symfony/Component/Validator/Constraints/Compound.stub
 		- stubs/Symfony/Component/Validator/ConstraintViolationInterface.stub
 		- stubs/Symfony/Component/Validator/ConstraintViolationListInterface.stub
 		- stubs/Symfony/Contracts/Cache/CacheInterface.stub
 		- stubs/Symfony/Contracts/Cache/CallbackInterface.stub
 		- stubs/Symfony/Contracts/Cache/ItemInterface.stub
+		- stubs/Symfony/Contracts/Service/ServiceSubscriberInterface.stub
 		- stubs/Twig/Node/Node.stub
 
 parametersSchema:
 	symfony: structure([
-		container_xml_path: schema(string(), nullable())
 		containerXmlPath: schema(string(), nullable())
-		constant_hassers: bool()
 		constantHassers: bool()
-		console_application_loader: schema(string(), nullable())
 		consoleApplicationLoader: schema(string(), nullable())
 	])
 
@@ -123,6 +121,13 @@ services:
 		factory: PHPStan\Symfony\XmlParameterMapFactory
 	-
 		factory: @symfony.parameterMapFactory::create()
+
+	# message map
+	symfony.messageMapFactory:
+		class: PHPStan\Symfony\MessageMapFactory
+		factory: PHPStan\Symfony\MessageMapFactory
+	-
+		factory: @symfony.messageMapFactory::create()
 
 	# ControllerTrait::get()/has() return type
 	-
@@ -186,6 +191,11 @@ services:
 	-
 		factory: PHPStan\Type\Symfony\EnvelopeReturnTypeExtension
 		tags: [phpstan.broker.dynamicMethodReturnTypeExtension]
+
+	# Messenger HandleTrait::handle() return type
+	-
+		class: PHPStan\Type\Symfony\MessengerHandleTraitReturnTypeExtension
+		tags: [phpstan.broker.expressionTypeResolverExtension]
 
 	# InputInterface::getArgument() return type
 	-
@@ -309,6 +319,10 @@ services:
 		class: PHPStan\Symfony\PasswordAuthenticatedUserStubFilesExtension
 		tags:
 			- phpstan.stubFilesExtension
+	-
+		class: PHPStan\Symfony\SymfonyDiagnoseExtension
+		tags:
+			- phpstan.diagnoseExtension
 
 	# FormInterface::getErrors() return type
 	-
@@ -329,3 +343,20 @@ services:
 	-
 		factory: PHPStan\Type\Symfony\InputBagTypeSpecifyingExtension
 		tags: [phpstan.typeSpecifier.methodTypeSpecifyingExtension]
+
+	# Additional constructors and initialization checks for @required autowiring
+	-
+		class: PHPStan\Symfony\RequiredAutowiringExtension
+		tags:
+			- phpstan.properties.readWriteExtension
+			- phpstan.additionalConstructorsExtension
+
+	# CacheInterface::get() return type
+	-
+		factory: PHPStan\Type\Symfony\CacheInterfaceGetDynamicReturnTypeExtension
+		tags: [phpstan.broker.dynamicMethodReturnTypeExtension]
+
+	# Extension::getConfiguration() return type
+	-
+		factory: PHPStan\Type\Symfony\ExtensionGetConfigurationReturnTypeExtension
+		tags: [phpstan.broker.dynamicMethodReturnTypeExtension]

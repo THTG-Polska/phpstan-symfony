@@ -2,6 +2,9 @@
 
 namespace PHPStan\Symfony;
 
+/**
+ * @api
+ */
 interface ServiceDefinition
 {
 
@@ -14,5 +17,8 @@ interface ServiceDefinition
 	public function isSynthetic(): bool;
 
 	public function getAlias(): ?string;
+
+	/** @return ServiceTag[] */
+	public function getTags(): array;
 
 }

@@ -2,6 +2,7 @@
 
 namespace GenericFormDataType;
 
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -29,6 +30,9 @@ class DataClassType extends AbstractType
 
 	public function buildForm(FormBuilderInterface $builder, array $options): void
 	{
+		assertType('GenericFormDataType\DataClass|null', $builder->getData());
+		assertType('GenericFormDataType\DataClass|null', $builder->getForm()->getData());
+
 		$builder
 			->add('foo', NumberType::class)
 			->add('bar', TextType::class)
@@ -66,6 +70,23 @@ class FormFactoryAwareClass
 	public function doSomethingNullable(): void
 	{
 		$form = $this->formFactory->create(DataClassType::class);
+		assertType('GenericFormDataType\DataClass|null', $form->getData());
+	}
+
+}
+
+class FormController extends AbstractController
+{
+
+	public function doSomething(): void
+	{
+		$form = $this->createForm(DataClassType::class, new DataClass());
+		assertType('GenericFormDataType\DataClass', $form->getData());
+	}
+
+	public function doSomethingNullable(): void
+	{
+		$form = $this->createForm(DataClassType::class);
 		assertType('GenericFormDataType\DataClass|null', $form->getData());
 	}
 
